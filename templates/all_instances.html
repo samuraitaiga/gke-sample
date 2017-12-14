@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.min.css">
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  </head>
+
+  <body>
+    <!--Import jQuery before materialize.js-->
+    <nav class="white" role="navigation">
+      <div class="nav-wrapper container">
+        <a id="logo-container" href="#" class="brand-logo">Logo</a>
+        <ul class="right hide-on-med-and-down">
+          <li><a href="#">Navbar Link</a></li>
+        </ul>
+
+        <ul id="nav-mobile" class="side-nav">
+          <li><a href="#">Navbar Link</a></li>
+        </ul>
+        <a href="#" data-activates="nav-mobile" class="button-collapse"><i class="material-icons">menu</i></a>
+      </div>
+    </nav>
+
+  <div id="index-banner">
+    <div class="section">
+      <div class="container">
+        <br><br>
+        <h1 class="header center teal-text text-lighten-2">GCP Instances</h1>
+        <div class="row center">
+          <table class="striped responsive-table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Machine Type</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+            {% for instance in instances %}
+              <tr>
+                <td><a href="/instance/{{instance.name}}">{{instance.name}}</a></td>
+                <td>{{instance.machine_type}}</td>
+                <td>{{instance.status}}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+  </body>
+</html>
