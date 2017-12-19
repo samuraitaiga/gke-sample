@@ -58,7 +58,7 @@ def log_access_info(msg=''):
     else:
         ip = request.remote_addr
 
-    info_logging('%s %s HTTP/1.1 - %s' % (ip, uri, msg))
+    info_logging('%s %s %s HTTP/1.1 - %s' % (request.method, ip, uri, msg))
     #app.logger.info('%s - %s: %s' % (ip, uri, msg))
 
 
