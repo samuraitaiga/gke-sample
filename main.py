@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from oauth2client.client import GoogleCredentials
 from googleapiclient import discovery
 from sqlalchemy import create_engine, Column
@@ -6,13 +6,11 @@ from sqlalchemy.types import String, TEXT
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from pytz import utc
-
 from apscheduler.schedulers.background import BackgroundScheduler
 from apscheduler.jobstores.sqlalchemy import SQLAlchemyJobStore
 from apscheduler.executors.pool import ThreadPoolExecutor, ProcessPoolExecutor
-
+from datetime import datetime
 import socket, os, json
-
 
 DEFAULT_PJ = 'xxx'
 DEFAULT_ZONE = 'asia-northeast1-a'
@@ -49,7 +47,19 @@ class GCPInstance(Base):
 
 
 def info_logging(msg):
-    print '[gke-sample] %s' % msg
+    now = datetime.now()
+    print '[%s] gke-sample INFO: %s' % (now, msg)
+
+
+def log_access_info(msg=''):
+    uri = request.script_root + request.path
+    if request.headers.getlist("X-Forwarded-For"):
+        ip = request.headers.getlist("X-Forwarded-For")[0]
+    else:
+        ip = request.remote_addr
+
+    info_logging('%s %s HTTP/1.1 - %s' % (ip, uri, msg))
+    #app.logger.info('%s - %s: %s' % (ip, uri, msg))
 
 
 def get_instances():
@@ -58,21 +68,20 @@ def get_instances():
     zone = os.getenv("GCP_ZONE", DEFAULT_ZONE)
     result = compute.instances().list(project=pj, zone=zone).execute()
     return result
-  
+
 
 @app.route("/")
 def index():
+    log_access_info()
+
     hostname = socket.gethostname()
     return render_template('index.html', hostname=hostname)
 
 
 @app.route("/instance/<instance_name>")
 def get_instance(instance_name):
+    log_access_info()
     gcp_instance = session.query(GCPInstance).filter_by(name=instance_name).first()
-#    if gcp_instance:
-#        return gcp_instance.cpu_platform
-#    else:
-#        return '%s not found' % instance_name
     return render_template(
         'instance.html',
         instance=gcp_instance,
@@ -81,6 +90,7 @@ def get_instance(instance_name):
 
 @app.route("/instance")
 def get_all_instance():
+    log_access_info()
     instances = []
     num_gcp_instances = session.query(GCPInstance).count()
     if num_gcp_instances == 0:
@@ -124,8 +134,18 @@ def make_cache():
             session.add(new_gcp_instance)
             session.commit()
 
-    info_logging("make_cache successed!!")
+    log_access_info("make cache successed!!")
     return 'make_cache successed!!'
+
+@app.errorhandler(404)
+def page_not_found(e):
+    log_access_info()
+    return '404 Not Found!!', 404
+
+@app.errorhandler(500)
+def page_not_found(e):
+    log_access_info()
+    return '500 Internal Server Error', 500
 
 job = scheduler.add_job(make_cache, 'interval', minutes=5)
 scheduler.start()
