@@ -48,13 +48,15 @@ class GCPInstance(Base):
 
 def info_logging(msg):
     now = datetime.now()
-    print '[%s] gke-sample INFO: %s' % (now, msg)
+    print '[%s] gke-sample-app INFO: %s' % (now, msg)
 
 
 def log_access_info(msg=''):
     uri = request.script_root + request.path
     if request.headers.getlist("X-Forwarded-For"):
         ip = request.headers.getlist("X-Forwarded-For")[0]
+        if ',' in ip.split:
+            ip = ip.split(',')[0]
     else:
         ip = request.remote_addr
 
