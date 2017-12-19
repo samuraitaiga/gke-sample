@@ -55,7 +55,7 @@ def log_access_info(msg=''):
     uri = request.script_root + request.path
     if request.headers.getlist("X-Forwarded-For"):
         ip = request.headers.getlist("X-Forwarded-For")[0]
-        if ',' in ip.split:
+        if ',' in ip:
             ip = ip.split(',')[0]
     else:
         ip = request.remote_addr
