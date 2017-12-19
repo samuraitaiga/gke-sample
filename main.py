@@ -74,7 +74,7 @@ def get_instances():
 
 @app.route("/")
 def index():
-    log_access_info()
+    log_access_info('200')
 
     hostname = socket.gethostname()
     return render_template('index.html', hostname=hostname)
@@ -82,7 +82,7 @@ def index():
 
 @app.route("/instance/<instance_name>")
 def get_instance(instance_name):
-    log_access_info()
+    log_access_info('200')
     gcp_instance = session.query(GCPInstance).filter_by(name=instance_name).first()
     return render_template(
         'instance.html',
@@ -92,7 +92,7 @@ def get_instance(instance_name):
 
 @app.route("/instance")
 def get_all_instance():
-    log_access_info()
+    log_access_info('200')
     instances = []
     num_gcp_instances = session.query(GCPInstance).count()
     if num_gcp_instances == 0:
@@ -141,12 +141,12 @@ def make_cache():
 
 @app.errorhandler(404)
 def page_not_found(e):
-    log_access_info()
+    log_access_info('404')
     return '404 Not Found!!', 404
 
 @app.errorhandler(500)
 def page_not_found(e):
-    log_access_info()
+    log_access_info('500')
     return '500 Internal Server Error', 500
 
 job = scheduler.add_job(make_cache, 'interval', minutes=5)
